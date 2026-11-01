@@ -1,0 +1,44 @@
+{
+  "PrivateApp": {
+    "code": "PA",
+    "kind": "web app",
+    "authorship": "ai",
+    "own": true,
+    "stack": "Django, PostgreSQL, React, Fluent UI",
+    "notes": "The author's private web app, built with AI; offline Windows install. Its code and reports are private, so its findings are published without file paths or report links."
+  },
+  "Ferrite": {
+    "code": "FE",
+    "kind": "desktop app",
+    "authorship": "ai",
+    "own": false,
+    "stack": "Rust, egui",
+    "source": "https://github.com/OlaProeis/Ferrite",
+    "license": "MIT",
+    "notes": "Text editor; its README says the code is 100% AI-generated. History mined from a source snapshot, 2026-10-31.",
+    "mined": [
+      {
+        "round": "2026-10-31-ferrite-mining",
+        "findings": 168,
+        "window": "0.1.0 to master snapshot"
+      }
+    ]
+  },
+  "Django": {
+    "code": "DJ",
+    "kind": "web app",
+    "authorship": "human",
+    "own": false,
+    "stack": "Python, Django ORM, PostgreSQL/MySQL/SQLite/Oracle",
+    "source": "https://github.com/django/django",
+    "license": "BSD-3-Clause",
+    "notes": "Web framework; filed under 'web app' as MINING.md's starting list does (back end). Mature, human-reviewed, every change through PR review; point-release notes name regressions; security advisories published. Mined with testing/MINING.md.",
+    "mined": [
+      {
+        "round": "2026-10-31-a05e16a-mine",
+        "findings": 132,
+        "window": "2024-10-31 to 2026-10-31 (main at a05e16a)"
+      }
+    ]
+  }
+}

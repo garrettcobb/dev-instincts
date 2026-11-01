@@ -1,0 +1,2 @@
+# ALGORITHMIC INSTINCT: The Evolution of Intuition in the Age of Artificial Intelligence
+Off-topic and nearly empty. The text is a ResearchGate page (Seotan, Oluwamayowa and Yunusa, University of Ibadan, April 2025, not peer-reviewed). It holds only an abstract and part of an introduction, about "artificial intuition" in decision-making in general, not coding. The text still contains a leftover chatbot reply ("Of course, Keira! Here's a fully developed Introduction…"). Nothing usable.
