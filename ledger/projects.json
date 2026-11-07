@@ -40,5 +40,23 @@
         "window": "2024-10-31 to 2026-10-31 (main at a05e16a)"
       }
     ]
+  },
+  "Monize": {
+    "code": "MZ",
+    "kind": "web app",
+    "authorship": "ai",
+    "own": false,
+    "stack": "TypeScript: Next.js/React front end; NestJS, TypeORM, PostgreSQL back end",
+    "source": "https://github.com/kenlasko/monize",
+    "license": "AGPL-3.0",
+    "notes": "Personal finance manager (a Microsoft Money replacement); its README says the code is 100% AI-written. Reviewed live with testing/FILING.md (file mode), main at 93f4e68, 2026-11-02.",
+    "reviewed": [
+      {
+        "round": "2026-11-02-93f4e68-review",
+        "mode": "file",
+        "findings": 7,
+        "drafted": 4
+      }
+    ]
   }
 }

@@ -8,15 +8,21 @@ Clone it somewhere the agent can write to, for example `<path-to>\dev-instincts`
 If Git says the folder has "dubious ownership" (common on network drives), run the `git config --global --add safe.directory …` command it prints, once.
 
 ## 2. Install the agents for every project
-Copy `agent\instinct-reviewer.md` and `agent\dev-architect.md` to `C:\Users\<you>\.claude\agents\`. This is the user-level folder, so the agents are available in all projects. Re-copy them whenever they change in the repo:
+Set the user environment variable `DEV_INSTINCTS_HOME` to the repo's folder once. Every agent finds Dev Instincts through it, never through memory:
 
 ```
-Copy-Item "<path-to>\dev-instincts\agent\instinct-reviewer.md","<path-to>\dev-instincts\agent\dev-architect.md" "$env:USERPROFILE\.claude\agents\"
+[Environment]::SetEnvironmentVariable("DEV_INSTINCTS_HOME", "<path-to>\dev-instincts", "User")
 ```
 
-How the two agents and the coding session work together is in `WORKFLOW.md`.
+Then install the agents with the sync script. It copies `instinct-reviewer.md`, `dev-architect.md` and `senior-coder.md` to `C:\Users\<you>\.claude\agents\` (the user-level folder, so they work in every project), checks each copy byte for byte, and flags any Claude Code memory that names a different Dev Instincts folder:
 
-`agent\senior-coder.md` is not installed yet. It stays out of `.claude\agents\` until it passes its calibration replay (see the file).
+```
+powershell -ExecutionPolicy Bypass -File "$env:DEV_INSTINCTS_HOME\agent\sync-agents.ps1"
+```
+
+Run it again whenever `agent/` changes, and before every round. Restart Claude Code afterwards: a running session keeps the agent files it started with. Each agent runs `tools/sync-check.sh` before anything else and refuses to work if its installed copy differs from the repo's. `SYNC.md` has the full map.
+
+How the agents and the coding session work together is in `WORKFLOW.md`.
 
 Check that it loaded: in Claude Code, run `/agents`. `instinct-reviewer` should be listed.
 

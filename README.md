@@ -10,9 +10,11 @@ Everything needed to use the method is here: the instincts, the agents, the temp
 
 PrivateApp's code, review reports and proof scripts are private. Its findings are in the ledger with their severity, area, instincts and status, but without file paths or links to the reports. Ferrite and Django findings keep their full detail because those projects are open source.
 
-That means the overall check order leans on data you can't check: 290 of the 459 findings that set it come from PrivateApp. The desktop-app ranking in [STATS.md](ledger/STATS.md) is built from Ferrite alone, and every finding behind it traces to Ferrite's public source, changelog and issues. Use it to test the method against data you can verify.
+That means the overall check order leans on data you can't check: 327 of the 508 findings that set it come from PrivateApp. The desktop-app ranking in [STATS.md](ledger/STATS.md) is built from Ferrite alone, and every finding behind it traces to Ferrite's public source, changelog and issues. Use it to test the method against data you can verify.
 
 ## Start here
+- **[PRINCIPLES.md](PRINCIPLES.md):** Garrett's principles (2026-11-02): what counts as a result, the test for every addition, the record and the protocol, and the road.
+- **[SYNC.md](SYNC.md):** where every file lives, which copy is the source, and the scripts that keep the agents in sync.
 - **[WORKFLOW.md](WORKFLOW.md):** how a change goes from request to done: you decide, the devArchitect plans and writes acceptance tests, the coding session builds, the instinct reviewer checks. One writer at a time.
 - **[agent/dev-architect.md](agent/dev-architect.md):** the devArchitect, a Claude Code agent (Opus, max effort) that turns a request into a plain-words plan, the decisions only you can make, and acceptance tests with hand-worked expected values. It never writes app code.
 - **[agent/instinct-reviewer.md](agent/instinct-reviewer.md):** the instinct reviewer, a Claude Code agent that checks code against everything here, proves what it finds and records it in the ledger. Install: [agent/INSTALL.md](agent/INSTALL.md).
@@ -23,6 +25,7 @@ That means the overall check order leans on data you can't check: 290 of the 459
 - **[LESSONS-LEARNED.md](LESSONS-LEARNED.md):** what the trial showed, what worked, what didn't, and what to carry forward.
 - **[testing/TEST-BATTERY.md](testing/TEST-BATTERY.md):** the fixed yardstick to run every pass.
 - **[testing/MINING.md](testing/MINING.md):** how the reviewer's mine mode grows the ledger from mature open-source repos across stacks: what to take, how much, when to stop.
+- **[testing/FILING.md](testing/FILING.md):** how to review a live AI-written repo, prove what it finds without running its code, and file the bugs upstream, scored by what maintainers accept.
 - **[metrics/CONVERGENCE.md](metrics/CONVERGENCE.md):** the numbers per pass, and the rule for calling convergence.
 
 ## Layout
@@ -46,6 +49,8 @@ knowledge/
 tools/
   stats.py                regenerates ledger/STATS.md
 DEV-INSTINCTS.md          the instincts + checklist
+PRINCIPLES.md             what counts as a result, the test for additions, the record, the road
+RULES.md                  the record: every rule in force, its origin and measured effect (append-only)
 WORKFLOW.md               roles, sequence, one writer at a time, CLAUDE.md line
 LESSONS-LEARNED.md        the trial's lessons
 testing/
@@ -54,12 +59,15 @@ testing/
   REVIEW-METHOD.md        independent report-only reviewers, evidence rules, verifying fix passes
   PROBE-RECIPES.md        how to write throwaway proofs without touching a project
   MINING.md               mine mode: growing the ledger from open-source repos
+  FILING.md               reviewing live AI-written repos and filing what they get wrong upstream
+  BACKLOG.md              the control's backlog: improvements and measures held until its block closes
 templates/
   AUDIT-SPEC.md           the developer's full audit spec
   review-brief.md         shared brief for independent reviewers (+ finding format)
   verify-brief.md         shared brief for verifying a fix pass
   fix-agent-setup.md      shared setup for parallel fixing agents
 metrics/CONVERGENCE.md    pass-by-pass data and the decision rule
+metrics/FILED.md          every issue filed upstream, its state, and the score
 context/
   BENCHMARKS.md           what fast AI delivery bought and left behind; vs. the average AI-assisted developer
   LICENSING.md            look-alike UI, icon packs, open-source notices

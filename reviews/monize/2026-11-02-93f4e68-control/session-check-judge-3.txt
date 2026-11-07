@@ -1,0 +1,19 @@
+transcript      dfa99228-7782-483f-b02f-9a590e57e1e4.jsonl
+claude code     2.1.318 (192 lines)
+model           claude-fable-5-1 25   (requests: 25)
+requested model claude-fable-5-1 25
+effort          high 25
+permission mode auto 17; auto mode notice present
+first prompt    2026-11-05 19:13:24 -0600   "<pasted_content id="2c2b"> Check a set of bug claims about kenlasko/mo"
+prompt wrapper  <pasted_content id="2c2b"> ... </pasted_content id="2c2b"> stripped before hashing
+prompt sha256   e4b7550da96a4fe9c21f9cc1cd47154bc0145b0488f57fe112340dfe91dc8229 (inside its paste block)
+prompt file     judge-3.txt: matches; its text's sha256 e4b7550da96a4fe9c21f9cc1cd47154bc0145b0488f57fe112340dfe91dc8229, the file's sha256sum e4b7550da96a4fe9c21f9cc1cd47154bc0145b0488f57fe112340dfe91dc8229
+clone created   2026-11-05 18:47:43 -0600
+report written  2026-11-05 19:18:26 -0600
+time used       5.0 min (from first prompt to report written)
+last message    2026-11-05 19:21:36 -0600
+tokens          output 24,112; input 1,051,163 (new 770, cache write 74,106, cache read 976,287)
+tools used      Bash 23, Write 1
+attachments     total_tokens_reminder 25, batching_reminder_sent 24, bash_output_audience_note 20, environment 5, prompt_snapshot 2, model 1, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1, silent_turn_reminder 1
+instruction files loaded  none
+leak terms      none found

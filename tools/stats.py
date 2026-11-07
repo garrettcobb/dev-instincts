@@ -20,6 +20,13 @@ ROOT = Path(__file__).resolve().parent.parent
 LEDGER = ROOT / "ledger" / "findings.jsonl"
 PROJECTS = ROOT / "ledger" / "projects.json"
 OUT = ROOT / "ledger" / "STATS.md"
+CONTROL = ROOT / "testing" / "CONTROL.md"
+# The control block's state line in testing/CONTROL.md section 5.2. While it reads
+# open, rows tagged control:B (bugs only the plain session found) stay out of the
+# check orders, so the frozen reviewer under test doesn't learn from the arm it is
+# measured against (Garrett's ruling, 2026-11-06).
+BLOCK_LINE = re.compile(r"^Block 1: (open|closed \d{4}-\d{2}-\d{2})\.$", re.MULTILINE)
+HELD_TAG = "control:B"
 
 # How much a miss of each severity costs. Data loss and security outrank a crash:
 # a crash is seen at once, while lost data or a hole can go unseen.
@@ -105,6 +112,28 @@ def in_check_order(row, projects):
     """The developer's own projects always count; outside projects only when
     the code was AI-written, which is the situation the reviewer is for."""
     return projects[row["project"]]["own"] or authorship(row, projects) == "ai"
+
+
+def block_open():
+    """True while testing/CONTROL.md's block state line reads open. Exactly one
+    such line must exist; otherwise stop before anything is written."""
+    if not CONTROL.exists():
+        raise SystemExit(
+            f"{CONTROL.relative_to(ROOT)} is missing: it must hold one "
+            "'Block 1: open.' or 'Block 1: closed <date>.' line (section 5.2)."
+        )
+    found = BLOCK_LINE.findall(CONTROL.read_text(encoding="utf-8"))
+    if len(found) != 1:
+        raise SystemExit(
+            f"{CONTROL.relative_to(ROOT)} must hold exactly one 'Block 1: open.' or "
+            f"'Block 1: closed <date>.' line (section 5.2); found {len(found)}."
+        )
+    return found[0] == "open"
+
+
+def held_out(row, open_block):
+    """A control:B row is held out of the check order while the block is open."""
+    return open_block and HELD_TAG in row.get("tags", [])
 
 
 def proposed_tags(row):
@@ -203,12 +232,59 @@ def coverage(rows, projects):
     return out
 
 
+
+def targets(rows):
+    """Escape rate per project and for its latest rounds, against the goals, and the
+    senior coder's severity-weighted hit rate from scored design notes."""
+    own = [r for r in rows if r.get("origin") and r.get("origin") != "external"]
+    out = []
+    for project in sorted({r["project"] for r in own}):
+        mine = [r for r in own if r["project"] == project]
+        rounds = list(dict.fromkeys(r["round"] for r in mine))  # ledger order = time order
+        recent = [r for r in mine if r["round"] in rounds[-5:]]
+        for label, rs in (("all rounds", mine), ("last 5 rounds", recent)):
+            esc = sum(1 for r in rs if r["origin"] == "escaped")
+            reg = sum(1 for r in rs if r["origin"] == "regression")
+            out.append([project, label, len(rs), f"{esc} ({percent(esc, len(rs))})",
+                        f"{reg} ({percent(reg, len(rs))})"])
+    # The hit rate scores predictions, not finds (Garrett, 2026-11-01). A finding
+    # with caught_by "senior-coder" came from a note's own break cases, so the note
+    # can't have missed it: counting those gave 72 of 73 (99%) by construction.
+    # Only findings caught by someone else (the reviewer, the developer, a user)
+    # on a rule a note covered are scored; the notes' own finds are counted apart.
+    noted = [r for r in rows if isinstance(r.get("design_note"), dict)
+             and r["design_note"].get("verdict") in ("predicted", "partly", "missed")]
+    own_finds = [r for r in noted if r.get("caught_by") == "senior-coder"]
+    scored = [r for r in noted if r.get("caught_by") != "senior-coder"]
+    finds = f"; the notes' own finds ({len(own_finds)}, caught_by senior-coder) aren't scored"
+    if scored:
+        got = sum(WEIGHT[r["severity"]] * {"predicted": 1, "partly": 0.5, "missed": 0}[r["design_note"]["verdict"]] for r in scored)
+        whole = sum(WEIGHT[r["severity"]] for r in scored)
+        verdicts = Counter(r["design_note"]["verdict"] for r in scored)
+        told = ", ".join(f"{verdicts[v]} {v}" for v in ("predicted", "partly", "missed") if verdicts[v])
+        hit = (f"{got:g} of {whole} ({percent(got, whole)}) over {len(scored)} findings caught by "
+               f"others on a rule a note covered ({told}){finds}")
+    else:
+        hit = ("no finding caught by someone else has been scored against a note yet "
+               f"(calibration: 23 of 28, 82%, see agent/senior-coder.md){finds}")
+    return out, hit
+
 def main():
     projects = load_projects()
     rows = load(projects)
     titles = instinct_titles()
-    counted = [r for r in rows if in_check_order(r, projects)]
+    open_block = block_open()
+    held = [r for r in rows if in_check_order(r, projects) and held_out(r, open_block)]
+    counted = [
+        r for r in rows if in_check_order(r, projects) and not held_out(r, open_block)
+    ]
     reference = [r for r in rows if not in_check_order(r, projects)]
+    held_note = (
+        f"{len(held)} rows tagged `{HELD_TAG}` are left out of it while the block "
+        "state line in testing/CONTROL.md §5.2 reads open; "
+        if open_block
+        else ""
+    )
     by_instinct = group(rows)
     unknown = sorted(n for n in by_instinct if n not in titles)
     priority = rank(group(counted), titles)
@@ -226,6 +302,7 @@ def main():
         and not proposed_tags(r)
     ]
 
+    target_rows, senior_hit = targets(rows)
     lines = [
         "# Ledger statistics",
         "",
@@ -238,7 +315,7 @@ def main():
             f"**{len(rows)} findings** across "
             f"{len({r['project'] for r in rows})} project(s) and "
             f"{len({(r['project'], r['round']) for r in rows})} round(s). "
-            f"{len(counted)} feed the check order; {len(reference)} are reference "
+            f"{len(counted)} feed the check order; {held_note}{len(reference)} are reference "
             "data from human-written outside projects. "
             f"Open or unverified: {sum(1 for r in rows if r['status'] in OPEN)}."
         ),
@@ -354,6 +431,20 @@ def main():
             ],
         ),
         "",
+        "## Targets",
+        "",
+        (
+            "Goals set by the developer (2026-11-01): escape rate under 5%, the high-performing mark "
+            "(industry average 10 to 15%); regressions under 10% of fixes; the senior coder's "
+            "prediction rate at 95% (bar to stay in the loop: 82%). Escaped means a review covering "
+            "that code had already passed it. Regressions here are a share of findings; per fix, see "
+            "metrics/CONVERGENCE.md."
+        ),
+        "",
+        table(["Project", "Rounds", "Findings", "Escaped", "Regressions"], target_rows),
+        "",
+        f"Senior coder hit rate (severity-weighted): {senior_hit}.",
+        "",
         "## Status",
         "",
         table(["Status", "Findings"], Counter(r["status"] for r in rows).most_common()),
@@ -446,7 +537,7 @@ def main():
         ),
         "",
     ]
-    OUT.write_text("\n".join(lines), encoding="utf-8")
+    OUT.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print(
         f"{len(rows)} findings ({len(counted)} in the check order, "
         f"{len(reference)} reference), {len(priority)} instincts ranked "

@@ -1,0 +1,226 @@
+{
+  "claims": [
+    {
+      "code": "VM",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "HG",
+      "arm": "A",
+      "run": "A2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "MV",
+      "arm": "A",
+      "run": "A2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "ZX",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "CT",
+      "arm": "B",
+      "run": "B2",
+      "severity": "data-loss"
+    },
+    {
+      "code": "MG",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "GN",
+      "arm": "A",
+      "run": "A1",
+      "severity": "crash"
+    },
+    {
+      "code": "VF",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "VP",
+      "arm": "B",
+      "run": "B2",
+      "severity": "crash"
+    },
+    {
+      "code": "ZD",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "ML",
+      "arm": "A",
+      "run": "A1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "TG",
+      "arm": "B",
+      "run": "B2",
+      "severity": "data-loss"
+    },
+    {
+      "code": "PN",
+      "arm": "A",
+      "run": "A1",
+      "severity": "stuck"
+    },
+    {
+      "code": "MN",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "GM",
+      "arm": "B",
+      "run": "B1",
+      "severity": "stuck"
+    },
+    {
+      "code": "XX",
+      "arm": "A",
+      "run": "A2",
+      "severity": "data-loss"
+    },
+    {
+      "code": "KR",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "SQ",
+      "arm": "B",
+      "run": "B1",
+      "severity": "security"
+    },
+    {
+      "code": "LH",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "LP",
+      "arm": "B",
+      "run": "B2",
+      "severity": "stuck"
+    },
+    {
+      "code": "DR",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "FP",
+      "arm": "A",
+      "run": "A1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "JH",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "VL",
+      "arm": "A",
+      "run": "A1",
+      "severity": "process"
+    },
+    {
+      "code": "XT",
+      "arm": "B",
+      "run": "B1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "GC",
+      "arm": "B",
+      "run": "B2",
+      "severity": "crash"
+    },
+    {
+      "code": "GG",
+      "arm": "A",
+      "run": "A1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "JN",
+      "arm": "A",
+      "run": "A2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "TX",
+      "arm": "B",
+      "run": "B2",
+      "severity": "data-loss"
+    },
+    {
+      "code": "WF",
+      "arm": "B",
+      "run": "B1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "SL",
+      "arm": "B",
+      "run": "B2",
+      "severity": "data-loss"
+    },
+    {
+      "code": "CG",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "JK",
+      "arm": "A",
+      "run": "A2",
+      "severity": "crash"
+    },
+    {
+      "code": "LM",
+      "arm": "B",
+      "run": "B1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "QR",
+      "arm": "B",
+      "run": "B1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "WV",
+      "arm": "B",
+      "run": "B2",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "PC",
+      "arm": "B",
+      "run": "B1",
+      "severity": "wrong-result"
+    }
+  ]
+}

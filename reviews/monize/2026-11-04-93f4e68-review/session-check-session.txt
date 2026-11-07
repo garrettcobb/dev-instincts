@@ -1,0 +1,19 @@
+transcript      transcript.jsonl
+claude code     2.1.318 (41 lines)
+model           claude-fable-5-1 4   (requests: 4)
+requested model claude-fable-5-1 4
+effort          medium 4
+permission mode auto 7; auto mode notice present
+first prompt    2026-11-04 06:39:17 -0600   "Send the instinct-reviewer agent the whole content of $env:DEV_INSTINC"
+prompt sha256   0dd64365de36a985c9ad73503a87de3d40661fad68e8f6e4663ddb62326de224 (as written)
+prompt file     arm-a-2.txt: does not match; its text's sha256 ffeb7517cd62a5f49c8cac5d5391d3cc8120f33c5e87a2d46e74186e555c89e3, the file's sha256sum ffeb7517cd62a5f49c8cac5d5391d3cc8120f33c5e87a2d46e74186e555c89e3
+last message    2026-11-04 19:19:27 -0600
+tokens          output 6,165; input 207,047 (new 70, cache write 26,194, cache read 180,783)
+tools used      Bash 1, Agent 1
+attachments     total_tokens_reminder 3, prompt_snapshot 2, batching_reminder_sent 2, environment 1, model 1, deferred_tools_delta 1, agent_listing_delta 1, mcp_instructions_delta 1, skill_listing 1, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1, bash_output_audience_note 1
+instruction files loaded  none
+leak terms      4 distinct hits; first 20:
+  line 6 (user): '93f4e68-control' in "nstincts_home/reviews/monize/2026-11-02-93f4e68-control/prompts/arm-a-2.txt as its prompt, word"
+  line 32 (assistant): '93f4e68-control' in "nstincts_home/reviews/monize/2026-11-02-93f4e68-control/prompts/arm-a-2.txt""
+  line 81 (user): 'instinct-scratch/transcripts/' in "<command-args><projects>/dev-instincts/.instinct-scratch/transcripts/arm-a-2-session.txt</command-args>"
+  line 82 (user): 'instinct-scratch/transcripts/' in "exported to: <projects>/dev-instincts/.instinct-scratch/transcripts/arm-a-2-session.txt</local-command-stdou"

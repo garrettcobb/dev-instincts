@@ -1,5 +1,5 @@
 # Position: Humans are Missing from AI Coding Agent Research
-- **Source:** Position paper by Zora Zhiruo Wang, John Yang, Kilian Lieret, Alexa Tartaglini, Valerie Chen, Yuxiang Wei, Zijian Wang, Lingming Zhang, Karthik Narasimhan, Ludwig Schmidt, Graham Neubig, Daniel Fried and Diyi Yang (Carnegie Mellon, Stanford, Princeton, UIUC). No date or venue in the text; it cites 2026 work and models up to GPT-5.2 and Claude Opus 4.5. Contacts: zhiruow@andrew.cmu.edu, johnby@stanford.edu.
+- **Source:** Position paper by Zora Zhiruo Wang, John Yang, Kilian Lieret, Alexa Tartaglini, Valerie Chen, Yuxiang Wei, Zijian Wang, Lingming Zhang, Karthik Narasimhan, Ludwig Schmidt, Graham Neubig, Daniel Fried and Diyi Yang (Carnegie Mellon, Stanford, Princeton, UIUC). No date or venue in the text; it cites 2026 work and models up to GPT-5.2 and Claude Opus 4.5.
 - **Type:** preprint (position paper)
 - **Evidence strength:** moderate. The main argument is a position. Its own measurements are real but proxy-based:
   - patch size against SWE-bench Verified "gold" patches, resolved instances only, run with mini-swe-agent across ~15+ models;

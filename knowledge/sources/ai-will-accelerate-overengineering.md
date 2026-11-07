@@ -1,5 +1,5 @@
 # AI Will Not Remove Overengineering. It Will Accelerate It
-- **Source:** Anton Minin Baranovskii, personal site (contact hi@antonmb.com), 8/3/2026. Part 6 of 8 in the series "Systems that survive contact with reality". URL not shown.
+- **Source:** Anton Minin Baranovskii, personal site, 8/3/2026. Part 6 of 8 in the series "Systems that survive contact with reality". URL not shown.
 - **Type:** opinion/essay
 - **Evidence strength:** weak. Reasoned argument with no data. The Stripe figure is "according to public descriptions", with no citation.
 

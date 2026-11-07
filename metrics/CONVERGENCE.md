@@ -34,6 +34,15 @@ The lock group is the counter-example inside the same day. Its rule was decided 
 - One reviewer caught 68 of the 70 PA-IR findings. Nothing checked the checker.
 - Of the plan's 12 entries, the lock group finished; rows 9 to 16 moved to the next round (plan section 13).
 
+## 2026-11-01 round: batch 1 (plan 844e811, RTIRR-247 to 249) and batch 2 (plan 0d6183f, 250 to 254)
+
+Batch 1 held the data-loss, crash and money entries; it stopped early at 249 by the developer's rule (a regression from 249 stops the batch; a 4th regression in delete locking sends the rule's design back). Verify round: Dev Instincts afb75c8 (reviews/PrivateApp/2026-11-01-0d6183f-verify.md).
+
+| Entries | Findings closed and verified | Regressions from fixes | Escape rate | Senior coder | Verdict |
+|---|---|---|---|---|---|
+| RTIRR-247 to 249 (40ccbf9, 1a55503, 0d6183f) | PA-IR-086, 089, 092, 093, 094, 095, 096, 097, 100, 073 | 7 from 3 fixes: PA-IR-089 (of 247), PA-IR-093 and 100 (of 248), PA-IR-101, 102, 103, 104 (of 249; open) | 18% (3 of 17: PA-IR-096, 097, 100) | 31% (5 of 16, over 7 scored findings) | not converging; delete locking restructured into one module |
+| RTIRR-250 to 254 (none built; plan 0d6183f) | none | none | n/a: nothing built to review | n/a: nothing scored | designed, not built: its 14 acceptance files committed (Dev Instincts 6f35212 to cec061a) and shown failing at 0d6183f; stopped by Garrett on cost before the first commit, 12 minutes into 250's build (the draft sits untested on PrivateApp branch wip-250, 0ac4246); the round closes on paper |
+
 ## What to record each pass
 - Battery version (and what changed, if anything).
 - New defects by severity: crash / data loss / wrong result / security / stuck / cosmetic.

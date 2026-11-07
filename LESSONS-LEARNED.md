@@ -69,6 +69,15 @@ What it showed:
 - A reviewer's "passed" needs the coverage line next to it, or the checks can quietly stop meaning what they say.
 - Speed hid the loss of control. Thirty commits in a day looked like progress.
 
+## 2026-11-02: the 2026-11-01 round, closed on paper
+
+Batch 1 (RTIRR-247 to 249) was built and stopped at 249 by its own rule; its verify round counted 7 regressions from 3 fixes, an 18% escape rate and the senior coder at 31%, and called it not converging. Batch 2 (RTIRR-250 to 254) answered with one removal module, designed down to the test before any code: a design note, a plan with Garrett's answers, and 14 acceptance files each shown failing at 0d6183f, in 20 commits. Garrett stopped 250's build on cost at 12 minutes, before its first commit, and parked PrivateApp. The draft sits untested on branch wip-250 (0ac4246).
+
+What it showed:
+- The controls held. Nothing got away as on 10-31: batch 1 stopped where its rule said, and the acceptance files are still the target at 0d6183f for whoever builds next.
+- Cost had no rule. The round had stops for regressions, scope and build time, but none for spend, and spend is what ended it. Set a cost limit before the plan, as the other stops were.
+- Fixing locking entry by entry regressed. The class fix chosen for it, one module, cost the most to design and was never built, so whether it holds is still open.
+
 ## Carry forward
 1. Use the checklist in `DEV-INSTINCTS.md` on every feature, before the first review.
 2. Build the shared guards early: one transaction-plus-event path, idempotent actions, input cleaning, stale-save refusal, error boundaries. Back each with a test that every route must pass.

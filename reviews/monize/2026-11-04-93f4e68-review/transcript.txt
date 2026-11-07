@@ -1,0 +1,326 @@
+ ▐▛███▛█   Claude Code v2.1.318
+▝▜██████▀  Fable 5.1 · Claude Max
+ ▝▝   ▝▝   <projects>\dev-instincts
+
+
+❯ Send the instinct-reviewer agent the whole content of $env:DEV_INSTINCTS_HOME 
+  \reviews\monize\2026-11-02-93f4e68-control\prompts\arm-a-2.txt as its prompt, 
+  word for word, adding nothing before or after. When its report is back, show  
+  it whole and stop.                                                            
+
+● I'll read the prompt file, then hand it to the instinct-reviewer verbatim.
+
+  Read 1 file (ctrl+o to expand)
+
+● instinct-reviewer(Arm A run 2 review)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● The instinct-reviewer agent is running with the prompt file's content, word
+  for word. I'll show its report whole when it comes back.
+
+✻ Sautéed for 28s · done 6:39 AM
+
+› Message from instinct-reviewer
+  # monize, round 2026-11-04-93f4e68-review (file mode, control run 2)
+
+  **Commit:** `0aac33b2d61acbfd8dacb239bcaacc60caceb1a6` on `main` of Dev
+  Instincts ("reviews/monize/: round 2026-11-04-93f4e68-review (file mode,
+  control run 2): 5 findings, 4 drafts, 1 held"). Only `reviews/monize/` was
+  added; `ledger/findings.jsonl` and `ledger/projects.json` untouched;
+  `tools/stats.py` run (STATS.md unchanged). Lock taken at start, released as
+  the last step. Nothing filed, commented or posted; `gh` read-only throughout.
+  Nothing from the clone was installed, built or run.
+
+  Files (all under `<projects>\dev-instincts\`):
+  - `reviews\monize\2026-11-04-93f4e68-review-issues.md` (4 drafts in the §5
+  form + Not filing)
+  - `reviews\monize\2026-11-04-93f4e68-review-findings.md` (CONTROL.md §4 form,
+  5 findings, no ids/instincts/ledger words, repo-relative paths)
+  - `reviews\monize\2026-11-04-93f4e68-review\ledger-rows.jsonl`
+  (MZ-L08..MZ-L12, every README field incl. smell; for the judge)
+  - `reviews\monize\2026-11-04-93f4e68-review\probes\` (2 probes, their outputs,
+  the AGPL-3.0 LICENSE)
+  - `reviews\monize\2026-11-04-93f4e68-review.md` (the round report)
+
+  ## Findings (reviewed sha 93f4e685dc8b46e97adc8be2c7ed2ace766d7ee9; today's
+  main fbf01ab, cited files unchanged except schema.sql adding `loan_fees`)
+
+  | Id | Severity | file:line (at 93f4e68) | Evidence | Drafted |
+  |---|---|---|---|---|
+  | MZ-L08 | wrong-result |
+  backend/src/transactions/transaction-reconciliation.service.ts:130-135,
+  :208-214; backend/src/transactions/void-status-transition.util.ts:125-144;
+  backend/src/transactions/transactions.service.ts:2813, :3111; sibling:
+  transaction-split.service.ts:884-888, :973, :1136, :1295, :1327 | probe
+  (`probe_void_mirror_leg.js` scenario 1) | yes, draft 1 |
+  | MZ-L09 | wrong-result | transaction-reconciliation.service.ts:240-242;
+  void-status-transition.util.ts:136; transactions.service.ts:3016-3017, :3111 |
+  probe (scenario 2) | yes, draft 2 |
+  | MZ-L10 | data-loss | backend/src/categories/categories.service.ts:582-616,
+  :654-697, :700-775; database/schema.sql:2424, :2472, :3640;
+  backend/src/payroll-deductions/entities/payroll-deduction-rule.entity.ts:65 |
+  reading | yes, draft 3 |
+  | MZ-L11 | crash | categories.service.ts:723-739, :751-766 (same shape
+  :674-690) | reading | yes, draft 4 |
+  | MZ-L12 | wrong-result | backend/src/common/recurrence.ts:139-148;
+  frontend/src/lib/frequency.ts:64-73;
+  frontend/src/i18n/messages/en/scheduledTransactions.json:323 | probe
+  (`probe_semimonthly_step.js`) | no (both implementations and tests agree;
+  likely design hidden by the "Twice a Month" label; Garrett decides) |
+
+  In one line each:
+  - **MZ-L08**: with "Lock reconciled transactions" on, voiding one transfer leg
+  via `PATCH /transactions/:id/status` or `PATCH /transactions/:id` sets the
+  other account's RECONCILED leg to VOID (reconciled date kept) and moves that
+  balance; the lock is checked on the requested row only, while `removeTransfer`
+  and the bulk route check both legs and refuse. Same cause: split
+  rebuild/removal deletes reconciled counterpart legs. Probe: paired delete 409,
+  status route "no refusal", Savings leg VOID, balance moved 100.00.
+  - **MZ-L09**: `updateStatus` accepts VOID -> RECONCILED (the `reconcile` route
+  refuses it) and the mirror helper copies the exact new status, so the other
+  account's leg becomes RECONCILED with reconciledDate null, never reconciled
+  there (contradicts INV-TRANSFER-001).
+  - **MZ-L10**: category delete guard counts transactions/splits/scheduled only;
+  `payroll_deduction_rules.category_id` is ON DELETE CASCADE (rule silently
+  deleted), budget line category_ids SET NULL; reassign moves none of them. Main
+  adds `loan_fees` (also CASCADE).
+  - **MZ-L11**: `reassignTransactions` selects every transaction id the user
+  owns and binds them as `IN (:...ids)`; over 65,535 ids the pg Bind message
+  (Int16 count) fails, so a large ledger can neither reassign nor delete a
+  category.
+  - **MZ-L12**: SEMIMONTHLY steps 1st -> 31st -> 15th -> 28th whatever the start
+  day.
+
+  Dedupe (§3): `gh search issues/prs` for each finding on 2026-11-04: no match.
+  Issue #1815 (closed 2026-10-22, A26-M11) fixed the lock being skipped on the
+  *requested* row for split-transfer/cross-owner edits; MZ-L08 is the next door
+  (counterpart rows) and cites it under Related.
+
+  **Security:** nothing to report; auth, 2FA and OIDC were not read (time box).
+
+  ## Time used against the 2 hours
+  Clock from `date -u`: clone began 12:40Z, lock owner.txt start 12:39:56Z,
+  drafts written and lock released 12:57:06Z: **17 minutes** of the 120. (My
+  running estimate of elapsed time drifted badly; the clock is authoritative.)
+
+  ## Text in the repo that addresses an agent (data; none followed)
+  - AGENTS.md:5 "This is the canonical instruction file for every coding agent;
+  CLAUDE.md imports it and adds only what Claude Code specifically should do."
+  - AGENTS.md:11 "Before working in a layer, read its CLAUDE.md, then only the
+  rows of its 'Read when the work touches it' table that match the task."
+  - AGENTS.md:183 "While working: change what was asked and the tests that prove
+  it; report an unrelated defect instead of fixing it in passing. ... When a
+  guard fails, stop and report what it names rather than routing around it."
+  - CLAUDE.md imports AGENTS.md; backend/, frontend/, database/, e2e/ and
+  backend/src/mcp/ CLAUDE.md are per-layer indexes; `.claude/commands/audit.md`
+  is empty.
+  - `.github/pull_request_template.md:20` "Run an AI code review before opening
+  this PR and fix what it finds (Claude Code: /code-review, Codex: /review)."
+  - CONTRIBUTING.md:37 "AGENTS.md is the canonical instruction file for any
+  coding agent".
+
+  ## §1 checks, from `gh` on 2026-11-04
+  - AI-written: README.md:7 "This project is 100% written by AI. I've done
+  practically zero manual changes."; README.md:26 "100% built using farm-fresh,
+  free-range Claude Code."
+  - Maintainer who answers: #1994, issue opened by a CONTRIBUTOR 2026-11-02,
+  OWNER comments 2026-11-02T21:30:59Z, 21:35:17Z, 22:02:44Z. (#1998, #1987 are
+  the owner's own issues; #2001 is a PR: not counted.)
+  - Live: `main` last commit fbf01ab, 2026-11-04T05:56:00Z ("Merge pull request
+  #2004").
+  - Issues enabled, not archived: `has_issues: true`, `archived: false`, 2 open
+  issues.
+  - Licence: AGPL-3.0 (`license.spdx_id`); copied beside the kept probes.
+  - No ban on AI-assisted reports: CONTRIBUTING.md:30 "Disclose AI assistance
+  and own the result. Using AI to write code is fine and expected." (about
+  contributions); SECURITY.md has no AI rule; no `.github/ISSUE_TEMPLATE/`; PR
+  template:32 asks for AI disclosure on PRs.
+
+  ## Couldn't check
+  Scheduled `post`/auto-post, loans and mortgages, MNY and CSV importer write
+  paths, bank sync, investments/holdings, backup/restore, joint and delegated
+  ledgers, AI/MCP tool paths beyond locating the status door, frontend beyond
+  the status cycle and frequency helper, and all of auth/2FA/OIDC. No suite or
+  coverage line: file mode, nothing run from the clone.
+
+  ## Ledger / housekeeping
+  - Rows MZ-L08..L12 are in the round folder only (control rule); they join
+  `ledger/findings.jsonl` after the judge rules. No new instinct proposed (all
+  fit 6, 13, 23, 27, 58). No uncommitted changes in Dev Instincts were found or
+  touched.
+  - Clone kept at `.instinct-scratch\file\monize-2\` (FILING §2); my probe
+  folder `.instinct-scratch\file\monize-2-probes\` removed after copying.
+  `file\monize\` and `transcripts\` were not opened; nothing under
+  DEV_CONTROL_HOME was read; no earlier monize round, ledger line or
+  projects.json was read.
+  - Memory: added `project_monize_file_mode_notes.md` (gotchas: heredoc
+  apostrophes break the Bash tool, use Write for probes; run `gh search` raw;
+  use `date -u` for the time box).
+
+  Nothing is filed until Garrett has read the drafts and said go.
+
+● The instinct-reviewer's report, whole:
+
+  monize, round 2026-11-04-93f4e68-review (file mode, control run 2)
+
+  Commit: 0aac33b2d61acbfd8dacb239bcaacc60caceb1a6 on main of Dev Instincts
+  ("reviews/monize/: round 2026-11-04-93f4e68-review (file mode, control run 2):
+  5 findings, 4 drafts, 1 held"). Only reviews/monize/ was added;
+  ledger/findings.jsonl and ledger/projects.json untouched; tools/stats.py run
+  (STATS.md unchanged). Lock taken at start, released as the last step. Nothing
+  filed, commented or posted; gh read-only throughout. Nothing from the clone
+  was installed, built or run.
+
+  Files (all under <projects>\dev-instincts\):
+  - reviews\monize\2026-11-04-93f4e68-review-issues.md (4 drafts in the §5 form
+    + Not filing)
+  - reviews\monize\2026-11-04-93f4e68-review-findings.md (CONTROL.md §4 form, 5
+    findings, no ids/instincts/ledger words, repo-relative paths)
+  - reviews\monize\2026-11-04-93f4e68-review\ledger-rows.jsonl (MZ-L08..MZ-L12,
+    every README field incl. smell; for the judge)
+  - reviews\monize\2026-11-04-93f4e68-review\probes\ (2 probes, their outputs,
+    the AGPL-3.0 LICENSE)
+  - reviews\monize\2026-11-04-93f4e68-review.md (the round report)
+
+  Findings (reviewed sha 93f4e685dc8b46e97adc8be2c7ed2ace766d7ee9; today's main 
+  fbf01ab, cited files unchanged except schema.sql adding loan_fees)
+
+  Id: MZ-L08
+  Severity: wrong-result
+  file:line (at 93f4e68):
+  backend/src/transactions/transaction-reconciliation.service.ts:130-135,
+    :208-214; backend/src/transactions/void-status-transition.util.ts:125-144;
+    backend/src/transactions/transactions.service.ts:2813, :3111; sibling:
+    transaction-split.service.ts:884-888, :973, :1136, :1295, :1327
+  Evidence: probe (probe_void_mirror_leg.js scenario 1)
+  Drafted: yes, draft 1
+  ────────────────────────────────────────
+  Id: MZ-L09
+  Severity: wrong-result
+  file:line (at 93f4e68): transaction-reconciliation.service.ts:240-242;
+    void-status-transition.util.ts:136; transactions.service.ts:3016-3017, :3111
+  Evidence: probe (scenario 2)
+  Drafted: yes, draft 2
+  ────────────────────────────────────────
+  Id: MZ-L10
+  Severity: data-loss
+  file:line (at 93f4e68): backend/src/categories/categories.service.ts:582-616,
+    :654-697, :700-775; database/schema.sql:2424, :2472, :3640;
+    backend/src/payroll-deductions/entities/payroll-deduction-rule.entity.ts:65
+  Evidence: reading
+  Drafted: yes, draft 3
+  ────────────────────────────────────────
+  Id: MZ-L11
+  Severity: crash
+  file:line (at 93f4e68): categories.service.ts:723-739, :751-766 (same shape
+    :674-690)
+  Evidence: reading
+  Drafted: yes, draft 4
+  ────────────────────────────────────────
+  Id: MZ-L12
+  Severity: wrong-result
+  file:line (at 93f4e68): backend/src/common/recurrence.ts:139-148;
+    frontend/src/lib/frequency.ts:64-73;
+    frontend/src/i18n/messages/en/scheduledTransactions.json:323
+  Evidence: probe (probe_semimonthly_step.js)
+  Drafted: no (both implementations and tests agree; likely design hidden by the
+
+    "Twice a Month" label; Garrett decides)
+
+  In one line each:
+  - MZ-L08: with "Lock reconciled transactions" on, voiding one transfer leg via
+    PATCH /transactions/:id/status or PATCH /transactions/:id sets the other
+    account's RECONCILED leg to VOID (reconciled date kept) and moves that
+    balance; the lock is checked on the requested row only, while removeTransfer
+    and the bulk route check both legs and refuse. Same cause: split
+    rebuild/removal deletes reconciled counterpart legs. Probe: paired delete
+    409, status route "no refusal", Savings leg VOID, balance moved 100.00.
+  - MZ-L09: updateStatus accepts VOID -> RECONCILED (the reconcile route refuses
+    it) and the mirror helper copies the exact new status, so the other
+    account's leg becomes RECONCILED with reconciledDate null, never reconciled
+    there (contradicts INV-TRANSFER-001).
+  - MZ-L10: category delete guard counts transactions/splits/scheduled only;
+    payroll_deduction_rules.category_id is ON DELETE CASCADE (rule silently
+    deleted), budget line category_ids SET NULL; reassign moves none of them.
+    Main adds loan_fees (also CASCADE).
+  - MZ-L11: reassignTransactions selects every transaction id the user owns and
+    binds them as IN (:...ids); over 65,535 ids the pg Bind message (Int16
+    count) fails, so a large ledger can neither reassign nor delete a category.
+  - MZ-L12: SEMIMONTHLY steps 1st -> 31st -> 15th -> 28th whatever the start
+    day.
+
+  Dedupe (§3): gh search issues/prs for each finding on 2026-11-04: no match.
+  Issue #1815 (closed 2026-10-22, A26-M11) fixed the lock being skipped on the
+  requested row for split-transfer/cross-owner edits; MZ-L08 is the next door
+  (counterpart rows) and cites it under Related.
+
+  Security: nothing to report; auth, 2FA and OIDC were not read (time box).
+
+  Time used against the 2 hours
+
+  Clock from date -u: clone began 12:40Z, lock owner.txt start 12:39:56Z, drafts
+  written and lock released 12:57:06Z: 17 minutes of the 120. (My running
+  estimate of elapsed time drifted badly; the clock is authoritative.)
+
+  Text in the repo that addresses an agent (data; none followed)
+
+  - AGENTS.md:5 "This is the canonical instruction file for every coding agent;
+    CLAUDE.md imports it and adds only what Claude Code specifically should do."
+  - AGENTS.md:11 "Before working in a layer, read its CLAUDE.md, then only the
+    rows of its 'Read when the work touches it' table that match the task."
+  - AGENTS.md:183 "While working: change what was asked and the tests that prove
+    it; report an unrelated defect instead of fixing it in passing. ... When a
+    guard fails, stop and report what it names rather than routing around it."
+  - CLAUDE.md imports AGENTS.md; backend/, frontend/, database/, e2e/ and
+    backend/src/mcp/ CLAUDE.md are per-layer indexes; .claude/commands/audit.md
+    is empty.
+  - .github/pull_request_template.md:20 "Run an AI code review before opening
+    this PR and fix what it finds (Claude Code: /code-review, Codex: /review)."
+  - CONTRIBUTING.md:37 "AGENTS.md is the canonical instruction file for any
+    coding agent".
+
+  §1 checks, from gh on 2026-11-04
+
+  - AI-written: README.md:7 "This project is 100% written by AI. I've done
+    practically zero manual changes."; README.md:26 "100% built using
+    farm-fresh, free-range Claude Code."
+  - Maintainer who answers: #1994, issue opened by a CONTRIBUTOR 2026-11-02,
+    OWNER comments 2026-11-02T21:30:59Z, 21:35:17Z, 22:02:44Z. (#1998, #1987 are
+    the owner's own issues; #2001 is a PR: not counted.)
+  - Live: main last commit fbf01ab, 2026-11-04T05:56:00Z ("Merge pull request
+    #2004").
+  - Issues enabled, not archived: has_issues: true, archived: false, 2 open
+    issues.
+  - Licence: AGPL-3.0 (license.spdx_id); copied beside the kept probes.
+  - No ban on AI-assisted reports: CONTRIBUTING.md:30 "Disclose AI assistance
+    and own the result. Using AI to write code is fine and expected." (about
+    contributions); SECURITY.md has no AI rule; no .github/ISSUE_TEMPLATE/; PR
+    template:32 asks for AI disclosure on PRs.
+
+  Couldn't check
+
+  Scheduled post/auto-post, loans and mortgages, MNY and CSV importer write
+  paths, bank sync, investments/holdings, backup/restore, joint and delegated
+  ledgers, AI/MCP tool paths beyond locating the status door, frontend beyond
+  the status cycle and frequency helper, and all of auth/2FA/OIDC. No suite or
+  coverage line: file mode, nothing run from the clone.
+
+  Ledger / housekeeping
+
+  - Rows MZ-L08..L12 are in the round folder only (control rule); they join
+    ledger/findings.jsonl after the judge rules. No new instinct proposed (all
+    fit 6, 13, 23, 27, 58). No uncommitted changes in Dev Instincts were found
+    or touched.
+  - Clone kept at .instinct-scratch\file\monize-2\ (FILING §2); my probe folder
+    .instinct-scratch\file\monize-2-probes\ removed after copying. file\monize\
+    and transcripts\ were not opened; nothing under DEV_CONTROL_HOME was read;
+    no earlier monize round, ledger line or projects.json was read.
+  - Memory: added project_monize_file_mode_notes.md (gotchas: heredoc
+    apostrophes break the Bash tool, use Write for probes; run gh search raw;
+    use date -u for the time box).
+
+  Nothing is filed until Garrett has read the drafts and said go.
+
+✻ Sautéed for 29s · done 6:58 AM
+
+● Agent "Arm A run 2 review" finished · 18m 22s

@@ -1,0 +1,22 @@
+Scenario 1: strict lock ON, Savings leg RECONCILED; PATCH /transactions/legA/status {status: VOID}
+  before
+    legA (Chequing): status=CLEARED reconciledDate=null
+    legB (Savings):  status=RECONCILED reconciledDate=2026-10-31
+    balances: Chequing=900.00 Savings=1100.00
+    DELETE /transactions/legA/transfer (both legs checked): 409 reconciledLockedError: This transaction is reconciled and locked.
+    status route result: balanceMoved=true counterpartAccounts=["sav"] (no refusal)
+  after
+    legA (Chequing): status=VOID reconciledDate=null
+    legB (Savings):  status=VOID reconciledDate=2026-10-31
+    balances: Chequing=1000.00 Savings=1000.00
+
+Scenario 2: both legs VOID; PATCH /transactions/legA/status {status: RECONCILED}
+  before
+    legA (Chequing): status=VOID reconciledDate=null
+    legB (Savings):  status=VOID reconciledDate=null
+    balances: Chequing=1000.00 Savings=1000.00
+    status route result: balanceMoved=true counterpartAccounts=["sav"]
+  after
+    legA (Chequing): status=RECONCILED reconciledDate=2026-11-04
+    legB (Savings):  status=RECONCILED reconciledDate=null
+    balances: Chequing=900.00 Savings=1100.00

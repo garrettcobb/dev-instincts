@@ -1,0 +1,19 @@
+transcript      932362bb-9b5f-4898-a8d7-b4bc5dbd1469.jsonl
+claude code     2.1.318 (525 lines)
+model           claude-fable-5-1 44   (requests: 44)
+requested model claude-fable-5-1 44
+effort          high 44
+permission mode auto 47; auto mode notice present
+first prompt    2026-11-04 20:48:24 -0600   "<pasted_content id="19fa"> Review the source code of kenlasko/monize, "
+prompt wrapper  <pasted_content id="19fa"> ... </pasted_content id="19fa"> stripped before hashing
+prompt sha256   87e0ed17b1dadbc14d14b67703014ce43bfc598ef49129287609142a877b9704 (inside its paste block)
+prompt file     arm-b-1.txt: matches; its text's sha256 87e0ed17b1dadbc14d14b67703014ce43bfc598ef49129287609142a877b9704, the file's sha256sum 87e0ed17b1dadbc14d14b67703014ce43bfc598ef49129287609142a877b9704
+clone created   2026-11-04 20:35:32 -0600
+report written  2026-11-04 21:05:05 -0600
+time used       16.7 min (from first prompt to report written)
+last message    2026-11-04 22:18:33 -0600
+tokens          output 77,882; input 7,144,094 (new 1,378, cache write 274,696, cache read 6,868,020)
+tools used      Bash 99, Write 1
+attachments     bash_output_audience_note 95, total_tokens_reminder 44, batching_reminder_sent 43, environment 23, prompt_snapshot 2, silent_turn_reminder 2, model 1, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1, edited_text_file 1
+instruction files loaded  none
+leak terms      none found
