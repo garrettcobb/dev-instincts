@@ -10,7 +10,7 @@ Everything needed to use the method is here: the instincts, the agents, the temp
 
 PrivateApp's code, review reports and proof scripts are private. Its findings are in the ledger with their severity, area, instincts and status, but without file paths or links to the reports. Ferrite and Django findings keep their full detail because those projects are open source.
 
-That means the overall check order leans on data you can't check: 327 of the 508 findings that set it come from PrivateApp. The desktop-app ranking in [STATS.md](ledger/STATS.md) is built from Ferrite alone, and every finding behind it traces to Ferrite's public source, changelog and issues. Use it to test the method against data you can verify.
+That means the overall check order leans on data you can't check: 327 of the 517 findings that set it come from PrivateApp. The desktop-app ranking in [STATS.md](ledger/STATS.md) is built from Ferrite alone, and every finding behind it traces to Ferrite's public source, changelog and issues. Use it to test the method against data you can verify.
 
 ## Start here
 - **[PRINCIPLES.md](PRINCIPLES.md):** Garrett's principles (2026-11-02): what counts as a result, the test for every addition, the record and the protocol, and the road.

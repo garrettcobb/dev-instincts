@@ -1,0 +1,425 @@
+ ▐▛███▛█   Claude Code v2.1.319
+▝▜██████▀  Fable 5.1 · Claude Ultra
+ ▝▝   ▝▝   <projects>\dev-instincts
+
+‼ Your login expires in 1 day · run /login to renew
+
+> Send the instinct-reviewer agent the whole content of $env:DEV_INSTINCTS_HOME 
+  \reviews\dashboarr\2026-11-07-bf3a060-control\prompts\arm-a-1.txt as its      
+  prompt, word for word, adding nothing before or after. When its report is     
+  back, show it whole and stop.                                                 
+
+● I'll read the prompt file and send its exact content to the instinct-reviewer
+  agent.
+
+  Read 1 file (ctrl+o to expand)
+
+● instinct-reviewer(Dashboarr arm A run 1 review)
+  ⎿  Backgrounded agent (↓ to manage · ctrl+o to expand)
+
+● The instinct-reviewer agent has been sent the prompt file's content verbatim
+  and is now running in the background. It has a 2 hour time box, so the report
+  may take a while. I'll show it whole as soon as it arrives.
+
+✻ Sautéed for 29s · done 8:03 PM
+
+› Message from instinct-reviewer
+  # Dashboarr file-mode review (control arm A run 1), round
+  2026-11-07-bf3a060-review
+
+  **Commit:** `a34d8bb33a9707d187b8940dd9d47315717650d7` in DEV_INSTINCTS_HOME
+  (`<projects>\dev-instincts`), committing only
+  `reviews/dashboarr/2026-11-07-bf3a060-review.md`, `-issues.md`,
+  `-findings.md`, and `2026-11-07-bf3a060-review/{ledger-rows.jsonl, probes/}`.
+  `ledger/findings.jsonl` and `STATS.md` are unchanged (`tools/stats.py` ran:
+  650 findings, 54 instincts ranked). Lock taken 02:03:42 UTC and released
+  02:30:59 UTC as the last step. `git status` was clean before and after; no
+  other uncommitted changes found. **Nothing was filed, commented or posted;
+  `gh` was used read-only throughout.** Nothing from the clone was installed,
+  built or run.
+
+  **One line:** 9 findings: 6 data-loss, 1 crash, 2 wrong-result; 5 reproduced
+  by standalone Node probes, 4 by reading. 4 drafts (covering 6 findings, two as
+  *Related*), 3 held.
+
+  ## Findings
+
+  | Id | Severity | file:line (at bf3a060) | Evidence | Drafted |
+  |---|---|---|---|---|
+  | DA-L01 | data-loss | store/config-store.ts:2735-2740, :2364, :2376, :2396,
+  :1773, :2758-2762 | reproduced (probe_demo_mode_persist.js) | yes, draft 1 |
+  | DA-L02 | data-loss | store/config-store.ts:2718-2728, :1649, :1561;
+  components/integrations/service-editor.tsx:1006-1037 | reproduced (same probe)
+  | yes, draft 1 *Related* |
+  | DA-L03 | data-loss | store/config-store.ts:2764-2801, :3088-3113;
+  services/backend-backup.ts:79 | reproduced (same probe, step 2b) | yes, draft
+  2 |
+  | DA-L04 | data-loss |
+  app/(tabs)/(dashboard,services,settings)/wake-on-lan.tsx:80-92;
+  store/config-schema.ts:172-189, :613-622; store/config-store.ts:2764-2781 |
+  reproduced (probe_wol_import.js) | yes, draft 3 |
+  | DA-L05 | data-loss | store/config-store.ts:2615-2623, :3112;
+  store/config-schema.ts:41-50, :77-78 | reading | yes, draft 3 *Related* |
+  | DA-L06 | wrong-result | store/config-store.ts:1945-1953, :1918-1927,
+  :700-712; lib/url-validation.ts:128-135; lib/network.ts:77-88 | reproduced
+  (probe_home_network_delete.js) | yes, draft 4 |
+  | DA-L07 | crash | hooks/use-torrent-poster-map.ts:22-44, :89-113;
+  store/storage.ts:7-13, :21-24, :70-74 | reading | no (trigger size not
+  measured) |
+  | DA-L08 | wrong-result | store/config-store.ts:2987-2992, :3067, :1415-1421 |
+  reading | no (minor, held) |
+  | DA-L09 | data-loss | store/config-store.ts:2868-2873, :2883, :2891-2899,
+  :2972-2982, :3040 | reading | no (no failing step shown) |
+
+  In plain words:
+  1. **DA-L01/L02/L03, Demo Mode.** `enableDemoMode` swaps the services and
+  strips every dashboard's `attachedInstances` in memory with a "not persisted"
+  comment, but every store setter persists the whole slice with no demo check.
+  Add a widget while demo is on, turn demo off: every workspace is auto-attach.
+  Flip "Use remote" on the demo Radarr: the real Radarr is replaced by
+  `demo.local` and its key is orphaned. Tap "Export settings" (same screen as
+  the switch): the backup holds demo servers and no secrets, while the backend
+  upload is correctly guarded. The guide promises "Turn it off and everything
+  comes back exactly as it was."
+  2. **DA-L04/L05, backups that cannot be restored.** The WoL editor accepts
+  port 70000 / 9.5 / -7 (and unlimited name, MAC, broadcast lengths); export
+  never validates; import's coercer rejects the device and throws for the whole
+  file ("Config wolDevices entry is invalid"). Same class for a service name
+  over 200 chars and header values over 4096, and for a schemeless URL left over
+  from older installs (normalized on read only, rejected on import). The
+  coercer's own comment (config-schema.ts:118-119) records this class once
+  before.
+  3. **DA-L06.** Removing a home network leaves dashboards' `homeNetworkIds`
+  dangling; only-stale ids mean "always remote" even with auto-switch off;
+  re-adding the WiFi mints a new id. The import path repairs exactly this; the
+  delete path doesn't.
+  4. **DA-L07/L08/L09** are held: an unbounded poster cache in one AsyncStorage
+  row with fire-and-forget writes (Android 2 MB cursor window, size not
+  measured); import leaves the old notification-settings key when the backup
+  lacks one; import wipes secrets and writes service lists before the fallible
+  steps.
+
+  Drafts: `reviews/dashboarr/2026-11-07-bf3a060-review-issues.md` (FILING §5
+  form, no issue template exists, "Not filing" list included). CONTROL §4
+  findings file: `reviews/dashboarr/2026-11-07-bf3a060-review-findings.md`.
+  Rows: `reviews/dashboarr/2026-11-07-bf3a060-review/ledger-rows.jsonl` (DA-L01
+  to DA-L09, `caught_by: independent-review`, `origin: pre-existing`, `tags:
+  ["latent"]`, `status: open`, `smell` filled). Probes with the GPL-3.0 LICENSE
+  beside them: `reviews/dashboarr/2026-11-07-bf3a060-review/probes/`. Round
+  report: `reviews/dashboarr/2026-11-07-bf3a060-review.md`. Note for the
+  coordinator: rows say `"project": "Dashboarr"`; I did not open
+  `ledger/projects.json` on instruction, so check the registered name before
+  merging.
+
+  Duplicate search (read-only, 02:17 UTC): `gh api search/issues` for "demo
+  mode", "demo", "wake on lan import", "import invalid config", "wolDevices",
+  "export settings demo", "AsyncStorage", "poster cache", "CursorWindow",
+  "attachedInstances", "workspace attach", plus the 22 open issue titles by eye:
+  no duplicate or prior fix for any drafted finding; #168 (closed, cross-device
+  import BSSID pins) is not these.
+
+  ## Time against the 2 hours
+  Clone started 02:04:06 UTC (2026-11-08), last code read 02:24:07, probes run
+  02:19-02:23, drafts/rows/report written and committed by 02:30:59. About 27
+  minutes clone-to-commit, roughly 20 of them reading; far inside §9's box.
+  Times from `date -u`. (Checkout needed `core.longpaths true` on Windows for
+  the route-group folder names.)
+
+  ## Agent-addressed text in the repo (data; none followed)
+  `CLAUDE.md`, `docs/CLAUDE.md` and `.claude/skills/service-apis/SKILL.md` exist
+  for the repo's own agents. Quoted lines that address an agent: `CLAUDE.md:35`
+  "Load it before implementing or debugging any service integration, and prefer
+  fetching the relevant doc page over guessing endpoint shapes."; `:63` "Never
+  use React Native's native `Alert.alert` ... Always use the styled
+  `ConfirmModal`"; `:71` "Every modal chain goes through `useModalFlow` ...
+  Never hand-wire the sequencing"; `:84` "Do not change this setting without
+  first verifying every rem-based class still scales."; `:87-89` "Never use
+  literal-pixel arbitrary values ... Always wrap lucide icons with `<Icon
+  ...>`"; `:117` "do not write your own `Keyboard.addListener` repositioning
+  code"; `:134` "Pure config modules, MUST stay free of React Native, Expo and
+  store imports"; `SKILL.md:168` "Use when implementing, debugging, or extending
+  any service integration". None asks for anything outside the repo's code; the
+  README has no agent-addressed text.
+
+  ## FILING §1 checks (gh, 2026-11-08 02:17-02:24 UTC)
+  1. AI-written: `README.md:258` at bf3a060, "Architecture is built with AI,
+  code is written by AI."
+  2. Maintainer answers: OWNER comments on outside-opened issues (opener
+  `author_association` NONE) in 30 days: #448 (2026-10-28), #415 (10-28, 10-30),
+  #464 (10-30, 2026-11-04), #486 (10-30). Passes.
+  3. Live: last commit on `main` 2026-11-03 07:21 UTC (bf3a060); `pushed_at`
+  2026-11-03 15:45 UTC. Passes.
+  4. Issues on, not archived: `has_issues: true`, `archived: false`, 22 open
+  issues. Passes.
+  5. Licence: GPL-3.0. Passes.
+  6. No AI-report ban: community profile
+  `contributing`/`issue_template`/`pull_request_template`/`code_of_conduct` all
+  null; `SECURITY.md`, `.github/SECURITY.md`, `.github/ISSUE_TEMPLATE`,
+  `CONTRIBUTING.md` 404 at bf3a060; README *Contributing* says "Contributions
+  are welcome! Feel free to open issues and pull requests." Passes; agrees with
+  the architect's policy check.
+
+  ## Security-only reading (for Garrett; never a draft)
+  Read: bearer lookup (bearer.ts:17-23, SQL equality on a 256-bit secret,
+  reasoning documented), pairing token single-use+expiry in one UPDATE
+  (repos/pairing.ts:25-35) minted only at startup, web login constant-time
+  compare with httpOnly SameSite=Strict cookie and `secure` only when the
+  request is https (ui.ts:87-99, documented), push-only PUT /config with no GET
+  (routes/config.ts:39-48) withholding Pi-hole/Beszel/session-Seerr secrets
+  (backend-api.ts:295-298), Digest cnonce from expo-crypto (http-auth.ts:463,
+  random.ts:44-50), device-unlock gate on export and backup enable
+  (device-auth.ts; config-store.ts:2767; backend.tsx:434, :1027). Nothing found
+  that would be a defect.
+
+  ## Checked and clean
+  Torrent deletes for qBittorrent/Deluge/Transmission/rtorrent; arr library
+  deletes and exclusion flags; season file delete; Bindery file delete;
+  queue-remove option mapping; detail-route instance pinning from the dashboard
+  Downloads and usenet widgets and per-row pause/resume; Seerr
+  approve/decline/delete; manual import payloads and import mode; config
+  migrations v12-v22; import validator field coverage against config-types;
+  backend backup slot writes and revisions; backup upload coalescing.
+
+  ## Couldn't check
+  Not read: hooks/use-notification-watchers.tsx; backend pollers and webhook
+  routes; the web editor's reducer; Plex, Jellyfin, Emby, Navidrome, Tautulli,
+  Glances, unRAID, Tdarr, AdGuard, Maintainerr, Autobrr, Cleanuparr, NZBHydra2,
+  Jackett, Prowlarr screens/services; usenet add paths; the Bazarr tab UI beyond
+  its parameter builders; the calendar; all tests (instincts 39/40/42 not
+  applied since nothing from the clone may run). Not provable here: DA-L07's
+  trigger size; DA-L09's failing step; the Android expo-secure-store 2048-byte
+  value limit against a large custom-headers map; Bazarr's DELETE boolean
+  handling against Bazarr's own source (only this repo was read).
+
+  Memory updated: `project_dashboarr_reviewer_notes.md` (next id DA-L10,
+  longpaths gotcha, unread areas) and its MEMORY.md line. The clone stays at
+  `.instinct-scratch/file/dashboarr/` until the batch is filed or dropped; my
+  scratch probes are at `.instinct-scratch/file/probes-dashboarr/` (kept copies
+  are in the round folder).
+
+● The instinct-reviewer agent's report, whole:
+
+  ---
+
+  Dashboarr file-mode review (control arm A run 1), round 
+  2026-11-07-bf3a060-review
+
+  Commit: a34d8bb33a9707d187b8940dd9d47315717650d7 in DEV_INSTINCTS_HOME
+  (<projects>\dev-instincts), committing only
+  reviews/dashboarr/2026-11-07-bf3a060-review.md, -issues.md, -findings.md, and
+  2026-11-07-bf3a060-review/{ledger-rows.jsonl, probes/}. ledger/findings.jsonl
+  and STATS.md are unchanged (tools/stats.py ran: 650 findings, 54 instincts
+  ranked). Lock taken 02:03:42 UTC and released 02:30:59 UTC as the last step.
+  git status was clean before and after; no other uncommitted changes found.
+  Nothing was filed, commented or posted; gh was used read-only throughout.
+  Nothing from the clone was installed, built or run.
+
+  One line: 9 findings: 6 data-loss, 1 crash, 2 wrong-result; 5 reproduced by
+  standalone Node probes, 4 by reading. 4 drafts (covering 6 findings, two as
+  Related), 3 held.
+
+  Findings
+
+  Id: DA-L01
+  Severity: data-loss
+  file:line (at bf3a060): store/config-store.ts:2735-2740, :2364, :2376, :2396,
+    :1773, :2758-2762
+  Evidence: reproduced (probe_demo_mode_persist.js)
+  Drafted: yes, draft 1
+  ────────────────────────────────────────
+  Id: DA-L02
+  Severity: data-loss
+  file:line (at bf3a060): store/config-store.ts:2718-2728, :1649, :1561;
+    components/integrations/service-editor.tsx:1006-1037
+  Evidence: reproduced (same probe)
+  Drafted: yes, draft 1 Related
+  ────────────────────────────────────────
+  Id: DA-L03
+  Severity: data-loss
+  file:line (at bf3a060): store/config-store.ts:2764-2801, :3088-3113;
+    services/backend-backup.ts:79
+  Evidence: reproduced (same probe, step 2b)
+  Drafted: yes, draft 2
+  ────────────────────────────────────────
+  Id: DA-L04
+  Severity: data-loss
+  file:line (at bf3a060):
+  app/(tabs)/(dashboard,services,settings)/wake-on-lan.tsx:80-92;
+    store/config-schema.ts:172-189, :613-622; store/config-store.ts:2764-2781
+  Evidence: reproduced (probe_wol_import.js)
+  Drafted: yes, draft 3
+  ────────────────────────────────────────
+  Id: DA-L05
+  Severity: data-loss
+  file:line (at bf3a060): store/config-store.ts:2615-2623, :3112;
+    store/config-schema.ts:41-50, :77-78
+  Evidence: reading
+  Drafted: yes, draft 3 Related
+  ────────────────────────────────────────
+  Id: DA-L06
+  Severity: wrong-result
+  file:line (at bf3a060): store/config-store.ts:1945-1953, :1918-1927, :700-712;
+
+    lib/url-validation.ts:128-135; lib/network.ts:77-88
+  Evidence: reproduced (probe_home_network_delete.js)
+  Drafted: yes, draft 4
+  ────────────────────────────────────────
+  Id: DA-L07
+  Severity: crash
+  file:line (at bf3a060): hooks/use-torrent-poster-map.ts:22-44, :89-113;
+    store/storage.ts:7-13, :21-24, :70-74
+  Evidence: reading
+  Drafted: no (trigger size not measured)
+  ────────────────────────────────────────
+  Id: DA-L08
+  Severity: wrong-result
+  file:line (at bf3a060): store/config-store.ts:2987-2992, :3067, :1415-1421
+  Evidence: reading
+  Drafted: no (minor, held)
+  ────────────────────────────────────────
+  Id: DA-L09
+  Severity: data-loss
+  file:line (at bf3a060): store/config-store.ts:2868-2873, :2883, :2891-2899,
+    :2972-2982, :3040
+  Evidence: reading
+  Drafted: no (no failing step shown)
+
+  In plain words:
+  1. DA-L01/L02/L03, Demo Mode. enableDemoMode swaps the services and strips
+     every dashboard's attachedInstances in memory with a "not persisted"
+     comment, but every store setter persists the whole slice with no demo
+     check. Add a widget while demo is on, turn demo off: every workspace is
+     auto-attach. Flip "Use remote" on the demo Radarr: the real Radarr is
+     replaced by demo.local and its key is orphaned. Tap "Export settings" (same
+     screen as the switch): the backup holds demo servers and no secrets, while
+     the backend upload is correctly guarded. The guide promises "Turn it off
+     and everything comes back exactly as it was."
+  2. DA-L04/L05, backups that cannot be restored. The WoL editor accepts port
+     70000 / 9.5 / -7 (and unlimited name, MAC, broadcast lengths); export never
+     validates; import's coercer rejects the device and throws for the whole
+     file ("Config wolDevices entry is invalid"). Same class for a service name
+     over 200 chars and header values over 4096, and for a schemeless URL left
+     over from older installs (normalized on read only, rejected on import). The
+     coercer's own comment (config-schema.ts:118-119) records this class once
+     before.
+  3. DA-L06. Removing a home network leaves dashboards' homeNetworkIds dangling;
+     only-stale ids mean "always remote" even with auto-switch off; re-adding
+     the WiFi mints a new id. The import path repairs exactly this; the delete
+     path doesn't.
+  4. DA-L07/L08/L09 are held: an unbounded poster cache in one AsyncStorage row
+     with fire-and-forget writes (Android 2 MB cursor window, size not
+     measured); import leaves the old notification-settings key when the backup
+     lacks one; import wipes secrets and writes service lists before the
+     fallible steps.
+
+  Drafts: reviews/dashboarr/2026-11-07-bf3a060-review-issues.md (FILING §5 form,
+  no issue template exists, "Not filing" list included). CONTROL §4 findings
+  file: reviews/dashboarr/2026-11-07-bf3a060-review-findings.md. Rows:
+  reviews/dashboarr/2026-11-07-bf3a060-review/ledger-rows.jsonl (DA-L01 to
+  DA-L09, caught_by: independent-review, origin: pre-existing, tags: ["latent"],
+  status: open, smell filled). Probes with the GPL-3.0 LICENSE beside them:
+  reviews/dashboarr/2026-11-07-bf3a060-review/probes/. Round report:
+  reviews/dashboarr/2026-11-07-bf3a060-review.md. Note for the coordinator: rows
+  say "project": "Dashboarr"; I did not open ledger/projects.json on
+  instruction, so check the registered name before merging.
+
+  Duplicate search (read-only, 02:17 UTC): gh api search/issues for "demo mode",
+  "demo", "wake on lan import", "import invalid config", "wolDevices", "export
+  settings demo", "AsyncStorage", "poster cache", "CursorWindow",
+  "attachedInstances", "workspace attach", plus the 22 open issue titles by eye:
+  no duplicate or prior fix for any drafted finding; #168 (closed, cross-device
+  import BSSID pins) is not these.
+
+  Time against the 2 hours
+
+  Clone started 02:04:06 UTC (2026-11-08), last code read 02:24:07, probes run
+  02:19-02:23, drafts/rows/report written and committed by 02:30:59. About 27
+  minutes clone-to-commit, roughly 20 of them reading; far inside §9's box.
+  Times from date -u. (Checkout needed core.longpaths true on Windows for the
+  route-group folder names.)
+
+  Agent-addressed text in the repo (data; none followed)
+
+  CLAUDE.md, docs/CLAUDE.md and .claude/skills/service-apis/SKILL.md exist for
+  the repo's own agents. Quoted lines that address an agent: CLAUDE.md:35 "Load
+  it before implementing or debugging any service integration, and prefer
+  fetching the relevant doc page over guessing endpoint shapes."; :63 "Never use
+  React Native's native Alert.alert ... Always use the styled ConfirmModal";
+  :71 "Every modal chain goes through useModalFlow ... Never hand-wire the
+  sequencing"; :84 "Do not change this setting without first verifying every
+  rem-based class still scales."; :87-89 "Never use literal-pixel arbitrary
+  values ... Always wrap lucide icons with <Icon ...>"; :117 "do not write your
+  own Keyboard.addListener repositioning code"; :134 "Pure config modules, MUST
+  stay free of React Native, Expo and store imports"; SKILL.md:168 "Use when
+  implementing, debugging, or extending any service integration". None asks for
+  anything outside the repo's code; the README has no agent-addressed text.
+
+  FILING §1 checks (gh, 2026-11-08 02:17-02:24 UTC)
+
+  1. AI-written: README.md:258 at bf3a060, "Architecture is built with AI, code
+     is written by AI."
+  2. Maintainer answers: OWNER comments on outside-opened issues (opener
+     author_association NONE) in 30 days: #448 (2026-10-28), #415 (10-28,
+     10-30), #464 (10-30, 2026-11-04), #486 (10-30). Passes.
+  3. Live: last commit on main 2026-11-03 07:21 UTC (bf3a060); pushed_at
+     2026-11-03 15:45 UTC. Passes.
+  4. Issues on, not archived: has_issues: true, archived: false, 22 open issues.
+     Passes.
+  5. Licence: GPL-3.0. Passes.
+  6. No AI-report ban: community profile
+     contributing/issue_template/pull_request_template/code_of_conduct all null;
+     SECURITY.md, .github/SECURITY.md, .github/ISSUE_TEMPLATE, CONTRIBUTING.md
+     404 at bf3a060; README Contributing says "Contributions are welcome! Feel
+     free to open issues and pull requests." Passes; agrees with the architect's
+     policy check.
+
+  Security-only reading (for Garrett; never a draft)
+
+  Read: bearer lookup (bearer.ts:17-23, SQL equality on a 256-bit secret,
+  reasoning documented), pairing token single-use+expiry in one UPDATE
+  (repos/pairing.ts:25-35) minted only at startup, web login constant-time
+  compare with httpOnly SameSite=Strict cookie and secure only when the request
+  is https (ui.ts:87-99, documented), push-only PUT /config with no GET
+  (routes/config.ts:39-48) withholding Pi-hole/Beszel/session-Seerr secrets
+  (backend-api.ts:295-298), Digest cnonce from expo-crypto (http-auth.ts:463,
+  random.ts:44-50), device-unlock gate on export and backup enable
+  (device-auth.ts; config-store.ts:2767; backend.tsx:434, :1027). Nothing found
+  that would be a defect.
+
+  Checked and clean
+
+  Torrent deletes for qBittorrent/Deluge/Transmission/rtorrent; arr library
+  deletes and exclusion flags; season file delete; Bindery file delete;
+  queue-remove option mapping; detail-route instance pinning from the dashboard
+  Downloads and usenet widgets and per-row pause/resume; Seerr
+  approve/decline/delete; manual import payloads and import mode; config
+  migrations v12-v22; import validator field coverage against config-types;
+  backend backup slot writes and revisions; backup upload coalescing.
+
+  Couldn't check
+
+  Not read: hooks/use-notification-watchers.tsx; backend pollers and webhook
+  routes; the web editor's reducer; Plex, Jellyfin, Emby, Navidrome, Tautulli,
+  Glances, unRAID, Tdarr, AdGuard, Maintainerr, Autobrr, Cleanuparr, NZBHydra2,
+  Jackett, Prowlarr screens/services; usenet add paths; the Bazarr tab UI beyond
+  its parameter builders; the calendar; all tests (instincts 39/40/42 not
+  applied since nothing from the clone may run). Not provable here: DA-L07's
+  trigger size; DA-L09's failing step; the Android expo-secure-store 2048-byte
+  value limit against a large custom-headers map; Bazarr's DELETE boolean
+  handling against Bazarr's own source (only this repo was read).
+
+  Memory updated: project_dashboarr_reviewer_notes.md (next id DA-L10, longpaths
+  gotcha, unread areas) and its MEMORY.md line. The clone stays at
+  .instinct-scratch/file/dashboarr/ until the batch is filed or dropped; my
+  scratch probes are at .instinct-scratch/file/probes-dashboarr/ (kept copies
+  are in the round folder).
+
+  ---
+
+  That is the whole report. Stopping here as asked.
+
+✻ Crunched for 29m 19s · done 8:32 PM
+
+● Agent "Dashboarr arm A run 1 review" finished · 28m 14s
+
+※ recap: Goal was running Dashboarr control arm A run 1 through the instinct-reviewer verbatim; it finished, committed a34d8bb with 9 findings and 4 drafts, nothing filed. Next: you read the drafts and decide whether to say go. (disable recaps in /config)

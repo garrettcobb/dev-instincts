@@ -23,7 +23,7 @@ AI-written repos with an active maintainer come first. A mature human-reviewed r
 - Read the path end to end; cite `file:line` at the noted sha.
 - **A standalone probe,** as in `case-study-ferrite/probes/`: a small program in the scratch folder, outside the clone, that copies the function's body and names the copied lines in a header. Stand-ins replace dependencies without changing the control flow (blake3 became the standard hasher); standard library only (`rustc --edition 2021 probe.rs`, `python -I probe.py`). Read every copied line before it runs: no network, no subprocess, no writes outside scratch.
 - No probe possible: the evidence is `reading`, and the issue says so.
-- **Before filing,** re-check on the current default and dev branches and search open and closed issues and pull requests. Drop what's fixed, duplicated, or changed since the read.
+- **Before filing,** re-check on the current default and dev branches and search open and closed issues and pull requests. Drop what's fixed, duplicated, or changed since the read. A draft whose cited line changed since the read while its confirmed outcome holds is flagged by the architect at the re-check and held unless Garrett says to post it (Garrett's decision, 2026-11-07, on draft 6 of monize's batch 2; the sentence the coordinator's reading, for Garrett to confirm).
 
 ## 4. What gets filed
 - Only `data-loss`, `crash` and `wrong-result`. `stuck`, `cosmetic` and `process` stay in the ledger. A `security` finding is never a public issue: it goes to Garrett.

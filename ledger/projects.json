@@ -58,5 +58,15 @@
         "drafted": 4
       }
     ]
+  },
+  "Dashboarr": {
+    "code": "DA",
+    "kind": "mobile app",
+    "authorship": "ai",
+    "own": false,
+    "stack": "TypeScript: Expo/React Native app (Expo Router, TanStack Query, Zustand, expo-secure-store); optional Fastify and SQLite back end",
+    "source": "https://github.com/RenzoBeux/Dashboarr",
+    "license": "GPL-3.0",
+    "notes": "Mobile app (Android and iOS) that manages a self-hosted media stack through each service's API; its README says its architecture is built with AI and its code is written by AI. Control round with testing/CONTROL.md, main at bf3a060, fixed 2026-11-07."
   }
 }

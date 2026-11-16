@@ -42,6 +42,16 @@ fourth checks that the folder mode refuses an empty --private text before it del
 anything; the fifth, that scan.py, given a file of private texts, reports each in any
 case by its number and never prints it. The two texts are made up and joined only when
 the tests run, so this file never holds either whole.
+
+The gate, the folder mode's test on the tracked files as they are, also takes the list of
+hidden texts, the work folder's export/private-texts.txt, beside the tools (Garrett,
+2026-11-07): the folder mode gets each of its lines as --private, and scan.py gets the file
+as its third argument, as export.sh passes them. The folder mode replaces every hidden text
+before the scan, so a scan of 0 hits can't show a new one; the test also holds the folder
+mode's count of replacements to the one worked out by hand, so a new occurrence of a hidden
+text in a tracked file fails the tests here. A missing private-texts.txt fails the test: it
+is never a pass or a skip. No failure message shows a hidden text: each is written
+<private text k>, as scan.py writes it.
 """
 
 import ast
@@ -809,6 +819,14 @@ def everything_under(folder):
     return sorted(seen)
 
 
+def hide_texts(text, texts):
+    """text with each hidden text in it, in any case, written <private text k>, as scan.py
+    writes it, so that no failure message shows one."""
+    for k, t in enumerate(texts, 1):
+        text = re.sub(re.escape(t), f"<private text {k}>", text, flags=re.I)
+    return text
+
+
 class FolderMode(unittest.TestCase):
     def folder_mode(self, plant=None):
         """sanitize.py's folder mode on a scratch copy of the tracked files and any planted ones: its output folder."""
@@ -869,21 +887,55 @@ class FolderMode(unittest.TestCase):
         self.maxDiff = None
         self.assertEqual(got, expected, "True: in the folder mode's output; False: not in it")
 
-    def test_tracked_files_sanitized_give_0_hits_with_the_real_exceptions(self):
-        """this repo's tracked files, sanitized by sanitize.py's folder mode and scanned with the real exceptions file, give 0 hits, 0 stale exceptions"""
-        work, out = self.folder_mode()
-        s = run([PY, "-I", os.path.join(EXPORT, "scan.py"), out, os.path.join(EXPORT, "sanitize.exceptions")], cwd=work)
-        # Expected, by hand: scan.py prints its count line last, here "0 hits, 0 stale exceptions",
-        # and exits 0: nothing in the sanitized copy matches its patterns but the exceptions, and
-        # each exception still matches.
+    def test_tracked_files_sanitized_with_the_private_texts_give_0_hits_with_the_real_exceptions_and_texts(self):
+        """this repo's tracked files, sanitized by sanitize.py's folder mode with each line of the work folder's export/private-texts.txt as --private and scanned with the real exceptions file and that private-texts.txt, give 0 hits, 0 stale exceptions, with the hidden texts replaced as often as worked out by hand; a missing private-texts.txt fails it"""
+        for tool in ("sanitize.py", "scan.py", "sanitize.exceptions"):
+            if not os.path.isfile(os.path.join(EXPORT, tool)):
+                self.fail(f"no {tool} in {EXPORT}; set DEV_INSTINCTS_EXPORT to the export tools' folder")
+        texts_file = os.path.join(EXPORT, "private-texts.txt")
+        if not os.path.isfile(texts_file):
+            self.fail(mask(f"no private-texts.txt in {EXPORT}: the list of hidden texts is absent, so the "
+                           "gate can't scan for them, and an absent list is no pass (Garrett, 2026-11-07)"))
+        # As export.sh reads the file: each line trimmed, a blank one skipped, each text one --private.
+        with open(texts_file, encoding="utf-8") as fh:
+            texts = [t for t in (line.strip() for line in fh.read().split("\n")) if t]
+        work = scratch(self)
+        src, out = os.path.join(work, "src"), os.path.join(work, "out")
+        copy_into(src, tracked_files())
+        # sanitize.py deletes its output folder first: it must be this test's own.
+        self.assertTrue(inside(out, work) and not os.path.exists(out), f"unsafe output folder {out}")
+        r = run([PY, "-I", os.path.join(EXPORT, "sanitize.py"), src, out]
+                + [arg for t in texts for arg in ("--private", t)], cwd=work)
+        if r.returncode != 0:
+            self.fail(mask_parent(hide_texts(f"sanitize.py's folder mode, given --private {len(texts)} time(s), failed "
+                                             f"(exit {r.returncode}):\n{(r.stdout + r.stderr).strip()[-1500:]}", texts)))
+        done = re.findall(r"^done: <projects> \d+, --private (\d+)$", r.stdout, re.M)
+        s = run([PY, "-I", os.path.join(EXPORT, "scan.py"), out, os.path.join(EXPORT, "sanitize.exceptions"),
+                 texts_file], cwd=work)
         hits = [line for line in s.stdout.splitlines() if line.startswith(("HIT ", "STALE "))]
         per_file = {}
         for line in hits:
             name = line.split(" ", 1)[1].split(":", 1)[0] if line.startswith("HIT ") else "(stale exceptions)"
             per_file[name] = per_file.get(name, 0) + 1
-        self.assertEqual((s.returncode, last_line(s)), (0, "0 hits, 0 stale exceptions"),
-                         mask(f"scan.py on the sanitized tracked files: exit {s.returncode}, {last_line(s)!r}; "
-                              f"per file {per_file}; the first 40:\n" + "\n".join(hits[:40])))
+        # Expected, by hand, as of 1183cfc (the architect's count, 2026-11-07; worked again whenever
+        # a tracked file gains or loses a hidden text, or the list changes):
+        # - private-texts.txt holds 1 text: 1 line, ending LF, none blank, so 1 --private;
+        # - the copy holds the 554 tracked files (git ls-files);
+        # - the folder mode replaces that text 3 times, all in
+        #   reviews/monize/2026-11-04-93f4e68-review/transcript-agent.jsonl, on its lines 460 and
+        #   465: the maintainer's full name, which the export of 2026-11-06 replaced there 3 times
+        #   (the run 2 provenance lines of 1183cfc); no other tracked file holds it. So its done
+        #   line ends "--private 3".
+        # - scan.py prints its count line last, "0 hits, 0 stale exceptions", and exits 0: no hidden
+        #   text is left in the copy, nothing else matches its patterns but the exceptions, and each
+        #   exception still matches.
+        # A new occurrence of a hidden text in a tracked file makes the count 4 or more. The scan
+        # can't see it, since the folder mode has replaced it: the count is what fails.
+        self.assertEqual((s.returncode, last_line(s), done), (0, "0 hits, 0 stale exceptions", ["3"]),
+                         mask_parent(hide_texts(
+                             f"scan.py on the tracked files sanitized with the private texts: exit {s.returncode}, "
+                             f"{last_line(s)!r}; the folder mode's --private count {done}; per file {per_file}; "
+                             "the first 40:\n" + "\n".join(hits[:40]), texts)))
 
 
 # The folder mode's --private texts, the Git Bash spellings of the projects folder and of its

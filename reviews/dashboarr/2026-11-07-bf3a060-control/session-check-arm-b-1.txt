@@ -1,0 +1,19 @@
+transcript      arm-b-1.jsonl
+claude code     2.1.319 (519 lines)
+model           claude-fable-5-1 43   (requests: 43)
+requested model claude-fable-5-1 43
+effort          high 43
+permission mode auto 47; auto mode notice present
+first prompt    2026-11-08 11:33:34 -0600   "<pasted_content id="f361"> Review the source code of RenzoBeux/Dashboa"
+prompt wrapper  <pasted_content id="f361"> ... </pasted_content id="f361"> stripped before hashing
+prompt sha256   29236aac84c0b3582259971e7c0675c4dd26a6826a34921b1663167aeabda1e0 (inside its paste block)
+prompt file     arm-b-1.txt: matches; its text's sha256 29236aac84c0b3582259971e7c0675c4dd26a6826a34921b1663167aeabda1e0, the file's sha256sum 29236aac84c0b3582259971e7c0675c4dd26a6826a34921b1663167aeabda1e0
+clone created   2026-11-08 11:30:11 -0600
+report written  2026-11-08 11:51:55 -0600
+time used       18.3 min (from first prompt to report written)
+last message    2026-11-08 23:22:47 -0600
+tokens          output 80,426; input 9,046,743 (new 1,346, cache write 345,941, cache read 8,699,456)
+tools used      Bash 101, Edit 2, Write 1
+attachments     bash_output_audience_note 96, total_tokens_reminder 43, batching_reminder_sent 42, environment 9, silent_turn_reminder 3, model 2, prompt_snapshot 2, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1, deferred_tools_record 1, compact_file_reference 1
+instruction files loaded  none
+leak terms      none found

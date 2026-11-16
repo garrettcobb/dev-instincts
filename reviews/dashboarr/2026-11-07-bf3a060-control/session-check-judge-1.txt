@@ -1,0 +1,19 @@
+transcript      judge-1.jsonl
+claude code     2.1.322 (249 lines)
+model           claude-fable-5-1 33   (requests: 33)
+requested model claude-fable-5-1 33
+effort          high 33
+permission mode auto 22; auto mode notice present
+first prompt    2026-11-10 18:42:47 -0600   "<pasted_content id="1ab8"> Check a set of bug claims about RenzoBeux/D"
+prompt wrapper  <pasted_content id="1ab8"> ... </pasted_content id="1ab8"> stripped before hashing
+prompt sha256   c1e371d41bca0ae10bfdb104ab9cabd6d864601c2f19eb471db2b692664cb17e (inside its paste block)
+prompt file     judge-1.txt: matches; its text's sha256 c1e371d41bca0ae10bfdb104ab9cabd6d864601c2f19eb471db2b692664cb17e, the file's sha256sum c1e371d41bca0ae10bfdb104ab9cabd6d864601c2f19eb471db2b692664cb17e
+clone created   2026-11-10 18:40:20 -0600
+report written  2026-11-10 18:50:10 -0600
+time used       7.4 min (from first prompt to report written)
+last message    2026-11-10 18:55:56 -0600
+tokens          output 35,682; input 2,040,325 (new 1,026, cache write 114,167, cache read 1,925,132)
+tools used      Bash 30, Write 1, Edit 1
+attachments     total_tokens_reminder 33, batching_reminder_sent 32, bash_output_audience_note 29, environment 4, silent_turn_reminder 4, prompt_snapshot 2, model 1, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1, deferred_tools_record 1
+instruction files loaded  none
+leak terms      none found

@@ -1,0 +1,22 @@
+transcript      arm-b-1-void.jsonl
+claude code     2.1.319 (30 lines)
+model           claude-fable-5-1 3   (requests: 3)
+requested model claude-fable-5-1 3
+effort          high 3
+permission mode auto 5; auto mode notice present
+first prompt    2026-11-08 11:07:42 -0600   "<pasted_content id="387f"> > $t = Get-Content <projects>\dev-instincts"
+prompt wrapper  <pasted_content id="387f"> ... </pasted_content id="387f"> stripped before hashing
+prompt sha256   9ae3abc0122f84b5e27d4e811e92b7b559dcdbb4e048c6be10ceb40ee2c64e70 (inside its paste block)
+prompt file     arm-b-1.txt: does not match; its text's sha256 29236aac84c0b3582259971e7c0675c4dd26a6826a34921b1663167aeabda1e0, the file's sha256sum 29236aac84c0b3582259971e7c0675c4dd26a6826a34921b1663167aeabda1e0
+last message    2026-11-08 11:08:08 -0600
+tokens          output 1,427; input 38,206 (new 66, cache write 14,889, cache read 23,251)
+tools used      Bash 2
+attachments     total_tokens_reminder 3, prompt_snapshot 2, bash_output_audience_note 2, batching_reminder_sent 2, environment 1, model 1, auto_mode 1, session_context 1, date 1, credential_org 1, remote_session_change 1
+instruction files loaded  none
+leak terms      6 distinct hits; first 20:
+  line 6 (user): 'instinct' in "87f"> > $t = get-content <projects>/dev-instincts/reviews/dashboarr/2026-11-07-bf3a060-c"
+  line 20 (last-prompt): 'instinct' in "> $t = get-content <projects>/dev-instincts/reviews/dashboarr/2026-11-07-bf3a060-c"
+  line 26 (api-request-blob): 'instinct' in "d="<projects>/dev-instincts/reviews/dashboarr/2026-11-07-bf3a060-c"
+  line 27 (api-request-blob): 'instinct' in "<projects>/dev-instincts/reviews/dashboarr/2026-11-07-bf3a060-c"
+  line 47 (api-request-blob): 'instinct' in "end of the session remove-item env:dev_instincts_home, env:dev_control_home test-path e"
+  line 47 (api-request-blob): 'agents-parked' in "itemtype directory -force $home/.claude/agents-parked | out-null move-item $home/.claude/agen"

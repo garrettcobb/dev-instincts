@@ -1,0 +1,21 @@
+# Verdicts
+
+| Claim | Verdict | Group | Severity | Evidence |
+|---|---|---|---|---|
+| JW | confirmed | 1 | stuck | hooks/use-torrent-poster-map.ts:22-44 and 64-113: a module-level Map is only ever added to (set on every queue record, set on every unseen history record, never deleted or capped) and the whole Map is re-serialized into one AsyncStorage value whenever it grows. store/storage.ts:21-24, 70-74, 80-83: every write is a bare AsyncStorage promise with no await, catch or return, so a failed write is silent while the in-memory cache already holds the value. store/storage.ts:7-13: start-up loads every key with getAllKeys plus multiGet of all keys at once, and store/config-store.ts:947 awaits it with no try/catch; app/_layout.tsx:431 calls hydrate() without a catch and app/_layout.tsx:476 renders null until hydrated is true, so a rejected start-up read leaves a blank app with no message. |
+
+# Notes
+
+## JW
+
+What the code settles. The hash-to-poster cache at hooks/use-torrent-poster-map.ts:22 is a module singleton. The hook (lines 64-111) inserts an entry for every queue record with a downloadId and an embedded movie or series, and for every history record (page size 50 per the hooks at hooks/use-radarr.ts:135 and hooks/use-sonarr.ts:146) whose key is not yet present. There is no deletion, size cap, age check or trimming anywhere in the file, and no other file touches the key (lib/constants.ts:475 is the only other mention of torrentPosterCache). Whenever the size grew (line 113), persistCache (lines 39-44) writes Object.fromEntries of the whole Map as one JSON string under one key through setJSON. An entry holds a 40-character hash key plus posterUrl (a TMDB or local URL, typically 80 to 120 characters), title, mediaType and routeId, so the claim's rough 300 bytes per entry is in the right range.
+
+store/storage.ts:21-24, 30-33, 35-38, 70-74 and 80-83 all update the in-memory cache first and then call AsyncStorage.setItem, removeItem or multiSet without await, then, catch or a returned promise. No caller can observe a failure. store/storage.ts:7-13 reads all keys in one multiGet. store/config-store.ts:947 awaits initStorage directly inside hydrate with no try/catch around it; hydrated is set to true only at the end of hydrate (store/config-store.ts:1512). app/_layout.tsx:431 calls hydrate() with no catch, and app/_layout.tsx:476 returns null while hydrated is false, so if initStorage rejects the app stays on a blank screen (the native splash is hidden by the 4-second backstop at app/_layout.tsx:423-428, leaving nothing behind it) and nothing is reported.
+
+What the code does not settle. The specific trigger on Android (a single row above about 2 MB making the all-keys read fail with a cursor window error, and the AsyncStorage database size limit making writes fail) is behaviour of the Android platform and the AsyncStorage native module, which are not part of this repo and were not read (node_modules is not present and the rules forbid reading outside the folder). The claim itself notes the size was not measured in a running app. I decided the claim is confirmed because the defect it describes, unbounded growth of one persisted value plus unchecked writes plus an unguarded all-keys start-up read, is fully present in the code, and the consequence follows for any storage backend with a per-row or total size ceiling. The threshold and the exact error are the unverified part.
+
+Severity decision. The claim says crash. The worst consequence the code shows is that hydrate never completes, the root layout renders null forever, and the user cannot get into the app or recover without clearing app data, with no error shown; I recorded that as stuck. Silent write failures on their own would also mean settings changed in a session are not persisted (the in-memory cache masks it until relaunch), which would be data-loss, but that depends on hitting the storage total size limit, further off than the per-row limit, so I did not pick it.
+
+Reaching the size needs on the order of thousands of distinct downloads seen by one install, since only the live queue and the latest 50 history records per service feed the cache. That is slow but has no bound.
+
+No program was run; reading the code was enough. Nothing in the repo or the claim asked me to take any action.

@@ -1,0 +1,94 @@
+{
+  "claims": [
+    {
+      "code": "XC",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "JV",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "PQ",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "TH",
+      "arm": "A",
+      "run": "A1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "GN",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "QX",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "WS",
+      "arm": "B",
+      "run": "B1",
+      "severity": "stuck"
+    },
+    {
+      "code": "JW",
+      "arm": "A",
+      "run": "A1",
+      "severity": "crash"
+    },
+    {
+      "code": "CD",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "TJ",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "HT",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "QT",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "JM",
+      "arm": "A",
+      "run": "A1",
+      "severity": "wrong-result"
+    },
+    {
+      "code": "LQ",
+      "arm": "A",
+      "run": "A1",
+      "severity": "data-loss"
+    },
+    {
+      "code": "RW",
+      "arm": "B",
+      "run": "B1",
+      "severity": "data-loss"
+    }
+  ]
+}
